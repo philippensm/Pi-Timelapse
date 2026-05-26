@@ -5,7 +5,7 @@ CUR_YEAR=$(date +%Y)
 SRCDIR="/volume1/taart/timelapse-${CUR_DATE}"
 DSTDIR="/volume1/taart/jaarvideo/${CUR_YEAR}"
 
-# Step 1: Find all files with modification time, calculate absolute difference from 12:00
+# Find all files with modification time, calculate absolute difference from 12:00
 # Format: diff_in_seconds epoch_timestamp file_path
 cd "$SRCDIR" || exit 1
 
