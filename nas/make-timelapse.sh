@@ -27,29 +27,28 @@ if [ -d "$DIR" ]; then
     if [ "$FADE_START" -lt 0 ]; then
         FADE_START=0
     fi
-    
-    # Het ffmpeg commando met -shortest en de dynamische -af (audio filter) voor de fade-out
-    # In 2 delen gesplitst, want de NAS stikte erin en het FFMPEG proces bleef maar doorlopen
-#    /usr/local/bin/ffmpeg7 -framerate 30 -i "${DIR}/image_%08d.jpg" -i "${AUDIOFILE}" -c:v libx264 -c:a aac -shortest -vf "scale=out_range=tv:in_range=pc,format=yuv420p" -af "afade=t=out:st=${FADE_START}:d=5" -color_range tv -movflags +faststart "${VDIR}/${VID}.mp4"
-    # Maak videofile zonder audio
+
+    # FFMPEG command with -shortest and dynamic -af (audio filter) for the fade-out
+    # Split in two parts, because the NAS choked in it and the FFMPEG command looped
+    # Make videofile without audio
     /usr/local/bin/ffmpeg7 -framerate 30 -i "${DIR}/image_%08d.jpg" -c:v libx264 -vf "scale=out_range=tv:in_range=pc,format=yuv420p" -crf 24 -color_range tv -movflags +faststart "${TMPDIR}/${VID}.mp4"
-    # voeg audio toe
+    # Add audio 
     /usr/local/bin/ffmpeg7 -i "${TMPDIR}/${VID}.mp4" -i "${AUDIOFILE}" -c:v copy -c:a aac -shortest -af "afade=t=out:st=${FADE_START}:d=5" -b:a 128k "${VDIR}/${VID}.mp4" 
 else
-    echo "Fout: Map ${DIR} niet gevonden. Taak afgebroken."
+    echo "Error: Folder ${DIR} not found. Task aborted."
 fi
-#   6. Upload naar YouTube ---
-    #tmpfile weggooien
+#   6. Upload to YouTube ---
+    # Delete tmpfile
     rm "${TMPDIR}/${VID}.mp4"
     echo "Start YouTube upload..."
-    # Pad naar de uploader map met programma en keys
+    # Path to the uploader folder with program and keys
     YT_DIR="/volume1/taart/uploader"
     
-    # De titel en omschrijving voor de video
+    # Title and description of the video
     YT_TITLE="Timelapse van Maashaven, Rotterdam Zuid (${DATUMTEKST})"
     YT_DESC="Uitzicht over Maashaven vanaf de Queen of the South (20ste verdieping). Gemaakt op ${DATUMTEKST} met een Raspberry Pi Zero2 W en een Pi-Cam."
     
-    # Voer de uploader uit
+    # Execute the uploader
     # -privacy public (of private / unlisted)
     # -categoryId 22 (People & Blogs - of kies een andere)
     ${YT_DIR}/youtubeuploader -filename "${VDIR}/${VID}.mp4" -title "${YT_TITLE}" -description "${YT_DESC}" -privacy public -secrets "${YT_DIR}/client_secrets.json" -cache "${YT_DIR}/request.token"
