@@ -1,17 +1,17 @@
 #!/bin/bash
-# 1. Get today's date (format: YYYYMMDD)
+# Get today's date (format: YYYYMMDD)
 VID=$(date +%Y%m%d)
 DATUMTEKST=$(date +%d-%m-%Y)
-# 2. Base dir where the relevante folders are
+# Base dir where the relevante folders are
 BASE_DIR="/volume1/taart"
-# 3. Select random audiotrack (there are 8 tracks available)
+# Select random audiotrack (there are 8 tracks available)
 number=$(( RANDOM % 8 + 1 ))
 AUDIOFILE="${BASE_DIR}/audio/audiotrack$number.mp3"
-# 4. Assemble the full path for the photo's and the video
+# Assemble the full path for the photo's and the video
 DIR="${BASE_DIR}/timelapse-${VID}"
 VDIR="${BASE_DIR}/timelapse-videos"
 TMPDIR="/volumeUSB1/usbshare/tmp" # tmpdir on the SSD of my NAS. Seems faster to me
-# 5. Check if todays' folder exists and create the video
+# Check if todays' folder exists and create the video
 if [ -d "$DIR" ]; then
     # go to the working folder
     cd "$DIR"
@@ -37,7 +37,7 @@ if [ -d "$DIR" ]; then
 else
     echo "Error: Folder ${DIR} not found. Task aborted."
 fi
-#   6. Upload to YouTube ---
+#    Upload to YouTube ---
     # Delete tmpfile
     rm "${TMPDIR}/${VID}.mp4"
     echo "Start YouTube upload..."
