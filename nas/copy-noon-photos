@@ -1,0 +1,36 @@
+#!/bin/bash
+
+CUR_DATE=$(date +%Y%m%d)
+CUR_YEAR=$(date +%Y)
+SRCDIR="/volume1/taart/timelapse-${CUR_DATE}"
+DSTDIR="/volume1/taart/jaarvideo/${CUR_YEAR}"
+
+# Step 1: Find all files with modification time, calculate absolute difference from 12:00
+# Format: diff_in_seconds epoch_timestamp file_path
+cd "$SRCDIR" || exit 1
+
+find . -type f -printf '%T@ %p\n' | while read -r timestamp filepath; do
+    # Extract hour and minute from file's modification time
+    hour=$(date -d "@$timestamp" +"%H")
+    minute=$(date -d "@$timestamp" +"%M")
+    file_minutes=$((10#$hour * 60 + 10#$minute))
+    midday_minutes=720  # 12 * 60
+    diff_minutes=$((file_minutes - midday_minutes))
+    abs_diff=$((diff_minutes < 0 ? -diff_minutes : diff_minutes))
+    echo "$abs_diff $timestamp $filepath"
+done | sort -n | head -3 | sort -k2,2n | awk '{print $3}' > /tmp/selected_files
+
+# Step 2: Copy and rename the 3 selected files in chronological order
+counter=1
+while IFS= read -r rel_path; do
+    full_path="$SRCDIR/$rel_path"
+    # Extract yyyymmdd from file's modification time
+    date_str=$(date -d "$(stat -c "%y" "$full_path")" +"%Y%m%d")
+    new_name="${date_str}_$(printf "%02d" "$counter").jpg"
+    cp "$full_path" "$DSTDIR/$new_name"
+    echo "Copied: $rel_path → $DSTDIR/$new_name"
+    ((counter++))
+done < /tmp/selected_files
+
+# Cleanup
+rm /tmp/selected_files
