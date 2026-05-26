@@ -20,7 +20,7 @@ find . -type f -printf '%T@ %p\n' | while read -r timestamp filepath; do
     echo "$abs_diff $timestamp $filepath"
 done | sort -n | head -3 | sort -k2,2n | awk '{print $3}' > /tmp/selected_files
 
-# Step 2: Copy and rename the 3 selected files in chronological order
+# Copy and rename the 3 selected files in chronological order
 counter=1
 while IFS= read -r rel_path; do
     full_path="$SRCDIR/$rel_path"
