@@ -31,7 +31,8 @@ if [ -d "$DIR" ]; then
     # FFMPEG command with -shortest and dynamic -af (audio filter) for the fade-out
     # Split in two parts, because the NAS choked in it and the FFMPEG command looped
     # Make videofile without audio
-    /usr/local/bin/ffmpeg7 -framerate 30 -i "${DIR}/image_%08d.jpg" -c:v libx264 -vf "scale=out_range=tv:in_range=pc,format=yuv420p" -crf 24 -color_range tv -movflags +faststart "${TMPDIR}/${VID}.mp4"
+    /usr/local/bin/ffmpeg7 -framerate 30 -pattern_type glob -i "${DIR}/image_*.jpg" -c:v libx264 -vf "scale=out_range=tv:in_range=pc,format=yuv420p" -crf 24 -color_range tv -movflags +faststart "${TMPDIR}/${VID}.mp4"
+    #/usr/local/bin/ffmpeg7 -framerate 30 -i "${DIR}/image_%08d.jpg" -c:v libx264 -vf "scale=out_range=tv:in_range=pc,format=yuv420p" -crf 24 -color_range tv -movflags +faststart "${TMPDIR}/${VID}.mp4"
     # Add audio 
     /usr/local/bin/ffmpeg7 -i "${TMPDIR}/${VID}.mp4" -i "${AUDIOFILE}" -c:v copy -c:a aac -shortest -af "afade=t=out:st=${FADE_START}:d=5" -b:a 128k "${VDIR}/${VID}.mp4" 
 else
